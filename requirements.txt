@@ -1,5 +1,6 @@
 # Install the package
 fastdist
+numba
 transformers
 tqdm
 numpy

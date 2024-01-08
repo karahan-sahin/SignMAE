@@ -1,34 +1,33 @@
+import sys
+sys.path.append(".")
+sys.path.append("../..")
 
 import torch
-from config import *
 from tqdm import tqdm
-from transformers import AdamW
-from datasets import PoseTopologyDataset, collate_fn
+from lib.config import *
+# from transformers import AdamW
 
 
 class ClassificationTrainer:
     def __init__(self,
                  model,
-                 train_dataset,
-                 val_dataset,
-                 device='cpu',
+                 train_dataloader,
+                 val_dataloader,
+                 device=DEVICE,
                  learning_rate=LEARNING_RATE):
 
 
         self.model = model.to(device)
         model = model.float()
         
-        self.train_dataset = train_dataset
-        self.val_dataset = val_dataset
+        self.train_dataloader = train_dataloader
+        self.val_dataloader = val_dataloader
         self.device = device
-        self.optimizer = AdamW(
-            model.parameters(), 
-            lr=learning_rate
-        )
+        self.optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
     def train(self):
         # Set optimizer and loss function
-        optimizer = AdamW(self.model.parameters(), lr=LEARNING_RATE, eps=EPSILON)
+        optimizer = self.optimizer
         loss_fn = torch.nn.CrossEntropyLoss()
 
         self.model.train()
@@ -57,12 +56,14 @@ class ClassificationTrainer:
                 running_loss += loss.item()
                 if batch_idx % 10 == 9:  # Print every 10 batches
                     with open(LOG_DIR, 'a+', encoding='utf-8') as f_out:
-                        f_out.write(f"Epoch [{epoch + 1}/{NUM_EPOCHS}] Batch [{batch_idx + 1}/{len(train_dataloader)}] Loss: {running_loss / 10:.4f} Accuracy: {(correct_predictions / total_predictions) * 100:.2f}%\n")
-                    print(f"Epoch [{epoch + 1}/{NUM_EPOCHS}] Batch [{batch_idx + 1}/{len(train_dataloader)}] Loss: {running_loss / 10:.4f} Accuracy: {(correct_predictions / total_predictions) * 100:.2f}%\n")
+                        f_out.write(f"Epoch [{epoch + 1}/{NUM_EPOCHS}] Batch [{batch_idx + 1}/{len(self.train_dataloader)}] Loss: {running_loss / 10:.4f} Accuracy: {(correct_predictions / total_predictions) * 100:.2f}%\n")
+                    print(f"Epoch [{epoch + 1}/{NUM_EPOCHS}] Batch [{batch_idx + 1}/{len(self.train_dataloader)}] Loss: {running_loss / 10:.4f} Accuracy: {(correct_predictions / total_predictions) * 100:.2f}%\n")
                     running_loss = 0.0
+                    
+            self.evaluate(epoch)
 
     
-    def evaluate(self, epoch):
+    def evaluate(self, epoch):   
         
         self.model.eval()
         

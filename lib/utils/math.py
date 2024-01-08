@@ -1,6 +1,8 @@
+import torch
 import pickle
-import fastdist
 import numpy as np
+from ..config import *
+from fastdist import fastdist
 
 def getMahalonobisDistance(x, y, cov): return np.linalg.norm(x - y, ord=1)
 
@@ -8,7 +10,7 @@ def getEuc(x, y): return np.linalg.norm(x - y)
 
 def getCos(x, y): return np.dot(x,y)/(np.linalg.norm(x)*np.linalg.norm(y))
 
-def getPoseGraph(merge_pose, 
+def getPoseGraphBSign22k(merge_pose, 
                  timestamp, 
                  distF='cos', 
                  dim=1):
@@ -19,7 +21,6 @@ def getPoseGraph(merge_pose,
         try:
             a = np.array([merge_pose[joint][timestamp][:2]  for joint in list(merge_pose.keys())])
             A = fastdist.matrix_pairwise_distance(a, dist, dist_id, return_matrix=True)
-            A = A.flatten()
         except:
             A = np.zeros((len(merge_pose.keys()), len(merge_pose.keys())))
 
@@ -32,9 +33,7 @@ def getPoseGraph(merge_pose,
             a = np.array([merge_pose[joint][timestamp][1:2]  for joint in list(merge_pose.keys())])
             A_y = fastdist.matrix_pairwise_distance(a, dist, dist_id, return_matrix=True)
                 
-            #print(A_x.shape, A_y.shape)
             A = np.stack([A_x, A_y], axis=2)
-            #print(A_x.shape, A_y.shape, A.shape)
         except:
             A = np.zeros((len(merge_pose.keys()), len(merge_pose.keys()), 2))
         
@@ -54,8 +53,6 @@ def extractPoseGraphs(
     
     for doc_path in paths:
         
-        doc_name = doc_path.split('/')[-1].split('.')[0]
-
         with open(doc_path, 'rb') as f:
 
             x = pickle.load(f)
@@ -70,17 +67,15 @@ def extractPoseGraphs(
 
             VIDEO = []
             for timestamp in range(NUM_FRAMES):
-                A = getPoseGraph(merge_pose, timestamp, distF, dim)
+                A = getPoseGraphBSign22k(merge_pose, timestamp, distF, dim)
                 VIDEO.append(A)
-
+            
             video_array = np.array(VIDEO)
             video_array = torch.tensor(video_array, dtype=torch.double)
                 
             VIDEOS.append(video_array)
     
     return VIDEOS
-
-
 
 
 def getPoseGraph(

@@ -1,32 +1,39 @@
+import sys
+sys.path.append(".")
+sys.path.append("../..")
+
+import re
+from lib.config import *
 from typing import Optional
 from transformers.configuration_utils import PretrainedConfig
 from transformers.modeling_utils import PreTrainedModel
-from config import *
 from transformers import VivitModel, VisionEncoderDecoderModel, AutoTokenizer
 
 
-class Sign2Text(VisionEncoderDecoderModel):
+class Sign2Text():
     
-    def __init__(self, 
-                 config: PretrainedConfig | None = None, 
-                 encoder: PreTrainedModel | None = None, 
-                 decoder: PreTrainedModel | None = None):
-        super().__init__(config, encoder, decoder)
-
+    def __init__(self):
         
-        self.from_encoder_decoder_pretrained(
-            POSE_ENCODER_MODEL, TEXT_DECODER_MODEL
+        self.VIDEO_ENCODER = VIDEO_ENCODER_MODEL_VIDEOMAE if MODEL_TYPE == 'videomae' else VIDEO_ENCODER_MODEL_VIVIT
+        
+        self.load_image_encoder()        
+        
+        self.model = VisionEncoderDecoderModel.from_encoder_decoder_pretrained(
+            'posemae_base', TEXT_DECODER_MODEL
         )
 
-        self.save_pretrained(TRANSLATION_MODEL)
-        self.tokenizer.save_pretrained(TRANSLATION_MODEL)
+        self.load_text_decoder()
+
+        self.freeze_layers()
+        
+        self.model.save_pretrained(TRANSLATION_MODEL)
         
     
     def load_image_encoder(self):
     
         # Get a pretrained vivit model config
         vivit = VivitModel.from_pretrained(
-            POSE_ENCODER_MODEL,
+            self.VIDEO_ENCODER
         )
 
         configuration = vivit.config
@@ -50,17 +57,24 @@ class Sign2Text(VisionEncoderDecoderModel):
         vivit.save_pretrained('posemae_base')        
         
     def load_text_decoder(self):        
-            
+        
         tokenizer = AutoTokenizer.from_pretrained(TEXT_DECODER_MODEL)
         # GPT2 only has bos/eos tokens but not decoder_start/pad tokens
         tokenizer.pad_token = tokenizer.eos_token
         # update the model config
-        self.config.eos_token_id = tokenizer.eos_token_id
-        self.config.decoder_start_token_id = tokenizer.bos_token_id
-        self.config.pad_token_id = tokenizer.pad_token_id
+        self.model.config.eos_token_id = tokenizer.eos_token_id
+        self.model.config.decoder_start_token_id = tokenizer.bos_token_id
+        self.model.config.pad_token_id = tokenizer.pad_token_id
+        
+        tokenizer.save_pretrained(TRANSLATION_MODEL)
+        
     
     def freeze_layers(self):
-        for name, param in self.named_parameters():
+        for name, param in self.model.named_parameters():
             # Open params of vivit encoder
-            if name.startswith('encoder'): param.requires_grad = True
-            #if name.startswith('decoder'): param.requires_grad = False  
+            if name.startswith('encoder'): 
+                param.requires_grad = True
+                #print(name, param.requires_grad)
+            if re.findall('decoder\.transformer\.[hw]\.[0-9]\.', name): 
+                param.requires_grad = False    
+                

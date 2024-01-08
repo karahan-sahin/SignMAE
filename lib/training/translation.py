@@ -1,12 +1,17 @@
 
-import os
+import sys
 
+from tqdm import tqdm
+sys.path.append(".")
+sys.path.append("../..")
+
+import os
 import torch
-from config import *
-from transformers import AdamW
+from lib.config import *
 from datasets import load_dataset
 from torch.utils.data import DataLoader
-from datasets import collator_function
+from dataset.dataloader import wrapper_collator_function
+from transformers import AutoTokenizer
 
 from model.translation import Sign2Text
 
@@ -16,37 +21,49 @@ class Seq2SeqTrainer:
                  model,
                  train_dataset,
                  val_dataset,
-                 device='cpu',
+                 device=DEVICE,
                  learning_rate=LEARNING_RATE):
 
 
+        print('Loading model...')
         self.model = model.to(device)
+        self.tokenizer = AutoTokenizer.from_pretrained(TRANSLATION_MODEL)
+
+        print('Model loaded.')
+        
+        print('Loading datasets..')
         self.train_dataset = train_dataset
         self.val_dataset = val_dataset
         self.device = device
-        self.optimizer = AdamW(
-            model.parameters(), 
-            lr=learning_rate
-        )
+        
+        print('Loading optimizer...')
+        self.optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
-    def train(self, epochs, batch_size):
+
+    def train(self, epochs):
+        
+        collator_function = wrapper_collator_function(tokenizer=self.tokenizer)
+        
         
         train_loader = DataLoader(
             self.train_dataset, 
-            batch_size=batch_size, 
+            batch_size=BATCH_SIZE, 
             collate_fn=collator_function, 
             shuffle=True
         )
         
         val_loader = DataLoader(
             self.val_dataset, 
-            batch_size=batch_size, 
+            batch_size=BATCH_SIZE, 
             collate_fn=collator_function
         )
 
         for epoch in range(epochs):
             self.model.train()
-            for batch in train_loader:
+            for batch_idx, (batch) in tqdm(enumerate(train_loader)):
+                
+                print(batch)
+                
                 self.optimizer.zero_grad()
 
                 pixel_values = batch['pixel_values'].to(self.device)
@@ -56,6 +73,11 @@ class Seq2SeqTrainer:
                 loss = outputs.loss
                 loss.backward()
                 self.optimizer.step()
+                
+                running_loss += loss.item()
+                if batch_idx % 10 == 9:  # Print every 10 batches
+                    with open(LOG_DIR, 'a+', encoding='utf-8') as f_out:
+                        f_out.write(f"Epoch [{epoch + 1}/{NUM_EPOCHS}] Batch [{batch_idx + 1}/{len(self.train_dataloader)}] Loss: {running_loss / 10:.4f}\n")
 
             print(f'Epoch {epoch+1}/{epochs} - Training Loss: {loss.item()}')
             self.evaluate(val_loader)
@@ -79,28 +101,3 @@ class Seq2SeqTrainer:
         avg_loss = total_loss / len(val_loader)
         print(f'Validation Loss: {avg_loss}')
 
-
-if __name__ == '__main__':
-    
-    # LOAD DATASET
-    ds_sign = load_dataset('bsign', split='train[:10%]')
-    
-    # LOAD MODEL
-    model = Sign2Text()
-    model.load_image_encoder()
-    model.load_text_decoder()
-    model.freeze_layers()
-    
-    # TRAIN MODEL
-    trainer_torch = Seq2SeqTrainer(
-        model,
-        train_dataset=ds_sign['train'],
-        val_dataset=ds_sign['val'],
-        device=DEVICE,
-        learning_rate=LEARNING_RATE
-    )
-    
-    trainer_torch.train(
-        epochs=NUM_EPOCHS, 
-        batch_size=BATCH_SIZE
-    )
