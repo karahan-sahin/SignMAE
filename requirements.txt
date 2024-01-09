@@ -7,5 +7,7 @@ numpy
 pandas
 torch
 torchvision
+datasets
+evaluate
 
 # TODO: Add dataset installation

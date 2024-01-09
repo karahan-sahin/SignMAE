@@ -53,28 +53,30 @@ def extractPoseGraphs(
     
     for doc_path in paths:
         
-        with open(doc_path, 'rb') as f:
+        try:
+            with open(doc_path, 'rb') as f:
 
-            x = pickle.load(f)
+                x = pickle.load(f)
 
-            POSE_DF = []
-            merge_pose = {}
-            merge_pose.update(x['hand_right'])
-            merge_pose.update(x['hand_left'])
-            merge_pose.update(x['pose'])
+                POSE_DF = []
+                merge_pose = {}
+                merge_pose.update(x['hand_right'])
+                merge_pose.update(x['hand_left'])
+                merge_pose.update(x['pose'])
 
-            timestamps = list(merge_pose.values())[0].shape[0]
+                timestamps = list(merge_pose.values())[0].shape[0]
 
-            VIDEO = []
-            for timestamp in range(NUM_FRAMES):
-                A = getPoseGraphBSign22k(merge_pose, timestamp, distF, dim)
-                VIDEO.append(A)
-            
-            video_array = np.array(VIDEO)
-            video_array = torch.tensor(video_array, dtype=torch.double)
+                VIDEO = []
+                for timestamp in range(NUM_FRAMES):
+                    A = getPoseGraphBSign22k(merge_pose, timestamp, distF, dim)
+                    VIDEO.append(A)
                 
-            VIDEOS.append(video_array)
-    
+                video_array = np.array(VIDEO)
+                video_array = torch.tensor(video_array, dtype=torch.double)
+                    
+                VIDEOS.append(video_array)
+        except: print(f' ** {doc_path=} cannot be readed ** ')
+
     return VIDEOS
 
 

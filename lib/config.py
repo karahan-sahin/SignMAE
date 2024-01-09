@@ -13,7 +13,6 @@ PATCH_SIZE = 4
 TUBELET_SIZE = 8 
 MAX_TOKENS = 256
 
-
 # MODEL TYPE
 POSE_ENCODER_TYPE = 'videomae' # VIVIT, VIDEOMAE
 VIDEO_ENCODER_MODEL_VIVIT = 'google/vivit-b-16x2'
@@ -45,4 +44,4 @@ POSE_DATA_PATH = 'data/autsl/mmpose-full'
 
 
 # LOGGING PARAMS
-LOG_DIR = 'vivit-e=100-b=8-tube=4-16-16_log.txt'
+LOG_DIR = f'signmae_base-{POSE_ENCODER_TYPE}-{TASK_TYPE}-{NUM_EPOCHS}-{BATCH_SIZE}-{TUBELET_SIZE}-{NUM_FRAMES}-{PATCH_SIZE}-logs.txt'
