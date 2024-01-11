@@ -14,7 +14,7 @@ class Sign2Text():
     
     def __init__(self):
         
-        self.VIDEO_ENCODER = VIDEO_ENCODER_MODEL_VIDEOMAE if MODEL_TYPE == 'videomae' else VIDEO_ENCODER_MODEL_VIVIT
+        self.VIDEO_ENCODER = VIDEO_ENCODER_MODEL_VIDEOMAE if POSE_ENCODER_TYPE == 'videomae' else VIDEO_ENCODER_MODEL_VIVIT
         
         self.load_image_encoder()        
         
