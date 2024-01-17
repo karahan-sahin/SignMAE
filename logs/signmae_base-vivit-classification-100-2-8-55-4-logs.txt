@@ -1,0 +1,1 @@
+Epoch [1/100] Batch [10/9009] Loss: 14.5169 Accuracy: 0.00%

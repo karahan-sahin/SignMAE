@@ -105,6 +105,13 @@ class AUTSLDataset(Dataset):
         val_df = pd.read_csv('data/autsl/val_labels.csv', header=None, names=['path', 'labels'])
         test_df = pd.read_csv('data/autsl/test_labels.csv', header=None, names=['path', 'labels'])
         
+        train_df['path'] = train_df['path'].apply(lambda x: f'{POSE_DATA_PATH}/train/{x}.pickle')
+        val_df['path'] = val_df['path'].apply(lambda x: f'{POSE_DATA_PATH}/val/{x}.pickle')
+        test_df['path'] = test_df['path'].apply(lambda x: f'{POSE_DATA_PATH}/test/{x}.pickle')
+        
+        train_df = train_df[train_df['path'].apply(lambda x: os.path.exists(x))]
+        val_df = val_df[val_df['path'].apply(lambda x: os.path.exists(x))]
+        test_df = test_df[test_df['path'].apply(lambda x: os.path.exists(x))]
         
         self.train_labels = train_df['labels'].to_numpy()
         self.val_labels  = val_df['labels'].to_numpy()
@@ -118,9 +125,9 @@ class AUTSLDataset(Dataset):
         self.label2id = {tr: int(idx) for idx, tr in zip(train_labels_id, train_labels_tr)}
         self.id2label = {int(idx): tr for idx, tr in zip(train_labels_id, train_labels_tr)}
 
-        train_file_pths = train_df['path'].apply(lambda x: f'{POSE_DATA_PATH}/train/{x}.pickle').to_numpy()
-        val_file_pths  = val_df['path'].apply(lambda x: f'{POSE_DATA_PATH}/val/{x}.pickle').to_numpy()
-        test_file_pths  = test_df['path'].apply(lambda x: f'{POSE_DATA_PATH}/test/{x}.pickle').to_numpy()
+        train_file_pths = train_df['path'].to_numpy()
+        val_file_pths  = val_df['path'].to_numpy()
+        test_file_pths  = test_df['path'].to_numpy()
         
         self.train_videos = pd.Series(train_file_pths)
         self.val_videos = pd.Series(val_file_pths)
