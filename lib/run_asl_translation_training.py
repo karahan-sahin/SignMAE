@@ -1,7 +1,13 @@
+import os
 from config import *
 from model.translation import Sign2Text
-from training.translation import Seq2SeqTrainer
+from training.translation import Seq2SeqTrainerCustom
 from dataset.dataloader import ASLFingerSpellingDataset
+
+os.environ["WANDB_DISABLED"] = "true"
+os.environ['TF_CPP_MIN_LOG_LEVEL']='1' 
+os.environ['CUDA_VISIBLE_DEVICES']='0' 
+os.environ['CUDA_LAUNCH_BLOCKING']='1'
 
 if __name__ == '__main__':
     
@@ -12,9 +18,7 @@ if __name__ == '__main__':
     model = Sign2Text()
     translation = model.model
     
-    trainer = Seq2SeqTrainer(translation,
-                            train_dataset=data['train'],
-                            val_dataset=data['val'])
+    trainer = Seq2SeqTrainerCustom(translation, dataset=data)
     
-    trainer.train(epochs=NUM_EPOCHS)
+    trainer.train()
     

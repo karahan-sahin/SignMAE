@@ -31,31 +31,50 @@ class Sign2Text():
     
     def load_image_encoder(self):
     
-        # Get a pretrained vivit model config
-        vivit = VivitModel.from_pretrained(
-            self.VIDEO_ENCODER
-        )
+    
+        # if POSE_ENCODER_TYPE == 'videomae':
 
-        configuration = vivit.config
+        #     model = VivitModel.from_pretrained(
+        #         self.VIDEO_ENCODER,
+        #     )
 
-        # Set custom params for new vivit model
-        configuration.num_channels = NUM_CHANNELS
-        configuration.image_size = IMAGE_SIZE
-        configuration.num_hidden_layers = NUM_HIDDEN_LAYERS
-        configuration.num_attention_heads = NUM_ATTENTION_HEADS
-        configuration.num_frames = NUM_FRAMES
-        configuration.tubelet_size = [
-            PATCH_SIZE,
-            TUBELET_SIZE,
-            TUBELET_SIZE
-        ]
+        #     model.config.patch_size = PATCH_SIZE
+        #     model.config.num_channels = NUM_CHANNELS
+        #     model.config.image_size = IMAGE_SIZE
+        #     model.config.num_hidden_layers = NUM_HIDDEN_LAYERS
+        #     model.config.num_attention_heads = NUM_ATTENTION_HEADS
+        #     model.config.num_frames = NUM_FRAMES
+        #     model.config.tubelet_size = TUBELET_SIZE
+            
 
-        vivit = VivitModel(
-            config=configuration
-        )
+        if POSE_ENCODER_TYPE == 'videomae':
 
-        vivit.save_pretrained('posemae_base')        
-        
+            print('Importing google/vivit-b-16x2')
+            # Get a pretrained vivit model config
+            vivit = VivitModel.from_pretrained(
+                'google/vivit-b-16x2'
+            )
+
+            configuration = vivit.config
+            
+            # Set custom params for new vivit model
+            configuration.num_channels = NUM_CHANNELS
+            configuration.image_size = IMAGE_SIZE
+            configuration.num_hidden_layers = NUM_HIDDEN_LAYERS
+            configuration.num_attention_heads = NUM_ATTENTION_HEADS
+            configuration.num_frames = NUM_FRAMES
+            configuration.tubelet_size = [
+                PATCH_SIZE,
+                TUBELET_SIZE,
+                TUBELET_SIZE
+            ]
+
+            vivit = VivitModel(
+                config=configuration
+            )
+
+            vivit.save_pretrained('posemae_base')        
+            
     def load_text_decoder(self):        
         
         tokenizer = AutoTokenizer.from_pretrained(TEXT_DECODER_MODEL)

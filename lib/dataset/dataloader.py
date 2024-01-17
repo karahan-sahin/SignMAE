@@ -184,27 +184,35 @@ class ASLFingerSpellingDataset():
         })
 
 
+def collate_fn(batch):
+    
+    videos = torch_pad(batch, batch_first=True, padding_value=0.00).float()
+
+    return torch.permute(videos,(0,1,4,2,3))
+
 def wrapper_collator_function(tokenizer):
+    
+    from utils.util_translation import extractPoseGraphs
     
     def collator_function(batch):
         
         labels = [example['phrase'] for example in batch]
         pths = [(example['file_name'], example['sequence_id']) for example in batch]
         
-        
-        return {
+        batch_dict = {
             'labels': torch.tensor(tokenization_fn(
-            labels, MAX_TOKENS, tokenizer=tokenizer
+                labels, MAX_TOKENS, tokenizer=tokenizer
             )),
-            'pixel_values':  collate_fn_pose_enc(
+            'pixel_values': collate_fn(
                 extractPoseGraphs(
                     pths, 
-                    distF=DISTANCE,
-                    dim=NUM_CHANNELS, 
-                    max_length=NUM_FRAMES
                 )
             )
         }
+        
+        return batch_dict
+
+    return collator_function
 
 def tokenization_fn(captions, max_target_length, tokenizer):
     """Run tokenization on captions."""
@@ -213,6 +221,9 @@ def tokenization_fn(captions, max_target_length, tokenizer):
                       max_length=max_target_length).input_ids
 
     return labels
+
+
+
 
 
 
