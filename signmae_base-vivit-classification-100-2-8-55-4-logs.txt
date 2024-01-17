@@ -1,0 +1,10 @@
+Epoch [1/100] Batch [10/9009] Loss: 14.7109 Accuracy: 0.00%
+Epoch [1/100] Batch [20/9009] Loss: 14.4873 Accuracy: 0.00%
+Epoch [1/100] Batch [30/9009] Loss: 14.0297 Accuracy: 0.00%
+Epoch [1/100] Batch [40/9009] Loss: 14.4265 Accuracy: 0.00%
+Epoch [1/100] Batch [50/9009] Loss: 13.9211 Accuracy: 0.00%
+Epoch [1/100] Batch [60/9009] Loss: 15.3950 Accuracy: 0.00%
+Epoch [1/100] Batch [70/9009] Loss: 14.2586 Accuracy: 0.00%
+Epoch [1/100] Batch [80/9009] Loss: 14.8562 Accuracy: 0.00%
+Epoch [1/100] Batch [90/9009] Loss: 14.3364 Accuracy: 0.00%
+Epoch [1/100] Batch [100/9009] Loss: 14.7259 Accuracy: 0.00%

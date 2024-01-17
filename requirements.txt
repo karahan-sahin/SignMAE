@@ -8,6 +8,8 @@ pandas
 torch
 torchvision
 datasets
+scikit-learn
+scipy
 evaluate
 
 # TODO: Add dataset installation

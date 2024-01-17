@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 
 from lib.config import *
-from lib.utils.utils_ import getPath
 from lib.utils.math import extractPoseGraphs
 
 from datasets import DatasetDict
