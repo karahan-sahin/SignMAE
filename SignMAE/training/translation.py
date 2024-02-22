@@ -1,15 +1,11 @@
 
-import sys
-
-from tqdm import tqdm
-sys.path.append(".")
-sys.path.append("../..")
 
 import os
 import torch
-from lib.config import *
+from tqdm import tqdm
+from SignMAE.config import *
 from datasets import load_dataset
-from lib.eval.translation import *
+from SignMAE.eval.translation import *
 from torch.utils.data import DataLoader
 from dataset.dataloader import wrapper_collator_function
 from transformers import AutoTokenizer, Seq2SeqTrainer, Seq2SeqTrainingArguments

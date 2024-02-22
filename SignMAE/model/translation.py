@@ -1,9 +1,7 @@
-import sys
-sys.path.append(".")
-sys.path.append("../..")
+
 
 import re
-from lib.config import *
+from SignMAE.config import *
 from typing import Optional
 from transformers.configuration_utils import PretrainedConfig
 from transformers.modeling_utils import PreTrainedModel

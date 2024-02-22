@@ -1,6 +1,4 @@
-import sys
-sys.path.append(".")
-sys.path.append("../..")
+
 
 import os
 import math
@@ -9,7 +7,7 @@ import pickle
 import numpy as np
 import pandas as pd
 from transformers import AutoModelForVideoClassification, VideoMAEModel, VideoMAEForVideoClassification, VivitForVideoClassification
-from lib.config import *
+from SignMAE.config import *
 from torch.nn.utils.rnn import pad_sequence as torch_pad
 from torch.utils.data import DataLoader, Dataset
 

@@ -1,6 +1,4 @@
-import sys
-sys.path.append(".")
-sys.path.append("../..")
+
 
 import os
 import math
@@ -8,8 +6,8 @@ import torch
 import numpy as np
 import pandas as pd
 
-from lib.config import *
-from lib.utils.math import extractPoseGraphs
+from SignMAE.config import *
+from SignMAE.utils.math import extractPoseGraphs
 
 from datasets import DatasetDict
 from torch.utils.data import Dataset, DataLoader

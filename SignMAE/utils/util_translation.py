@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import pandas as pd
-from lib.config import *
+from SignMAE.config import *
 from fastdist import fastdist
 
 import numpy as np

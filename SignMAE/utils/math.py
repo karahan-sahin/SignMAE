@@ -3,7 +3,7 @@ import threading
 import torch
 import pickle
 import numpy as np
-from lib.config import *
+from SignMAE.config import *
 from ..utils.utils_ import *
 from fastdist import fastdist
 from tqdm import tqdm

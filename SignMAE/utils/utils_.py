@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from lib.config import *
+from SignMAE.config import *
 
 def process_skeleton(input_raw, nodes):
     active_frame_indices = get_active_frames(input_raw)

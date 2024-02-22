@@ -1,10 +1,8 @@
-import sys
-sys.path.append(".")
-sys.path.append("../..")
+
 
 import torch
 from tqdm import tqdm
-from lib.config import *
+from SignMAE.config import *
 # from transformers import AdamW
 
 
